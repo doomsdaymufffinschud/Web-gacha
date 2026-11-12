@@ -1,0 +1,408 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gacha Arena</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0b0813;color:white;
+  font-family:Arial,sans-serif;
+  min-height:100vh;
+}
+header{
+  background:#171020;
+  border-bottom:1px solid #56317a;
+  padding:18px 15px;
+  display:flex;justify-content:space-between;
+  align-items:center;gap:10px;
+}
+.logo{font-size:22px;font-weight:900;color:#c084fc}
+.balance{
+  background:#291b39;padding:10px 14px;
+  border-radius:10px;color:#facc15;
+  font-weight:bold;
+}
+nav{
+  display:flex;gap:8px;padding:12px;
+  background:#130e1c;overflow-x:auto;
+}
+nav button{
+  background:#281b36;color:#ddd;
+  border:1px solid #553477;
+  border-radius:9px;padding:11px 17px;
+  white-space:nowrap;font-weight:bold;
+}
+nav button.active{background:#873bc5;color:white}
+main{max-width:900px;margin:auto;padding:16px}
+.section{display:none}
+.section.active{display:block}
+.banner{
+  background:linear-gradient(135deg,#32144d,#111020 65%,#501c66);
+  border:1px solid #8c45bb;
+  border-radius:16px;padding:25px 16px;
+  text-align:center;margin-bottom:18px;
+}
+.banner h1{font-size:29px;color:#e9b5ff}
+.banner p{color:#c8b7d5;margin-top:10px}
+.stats{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:10px;margin-bottom:18px;
+}
+.stat{
+  background:#191322;padding:15px;
+  border:1px solid #382447;border-radius:12px;
+}
+.stat small{color:#b7a2c7}
+.stat strong{display:block;font-size:23px;margin-top:7px}
+.panel{
+  background:#17111f;border:1px solid #49305d;
+  padding:18px;border-radius:14px;margin-bottom:18px;
+}
+.panel h2{color:#d8a6ff;margin-bottom:12px}
+.character-banner{
+  min-height:190px;border-radius:14px;
+  background:radial-gradient(circle,#70419b,#20112f 65%,#100b18);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:10px;
+  border:1px solid #a66bd2;
+}
+.character-banner .symbol{font-size:75px}
+.character-banner h2{color:white;font-size:23px}
+.buttons{display:flex;gap:10px;margin-top:15px}
+.game-btn{
+  flex:1;padding:14px 8px;
+  background:linear-gradient(135deg,#8b42cb,#51217f);
+  color:white;border:1px solid #c084fc;
+  border-radius:10px;font-weight:bold;
+  font-size:15px;
+}
+.game-btn:disabled{opacity:.4}
+.secondary{background:#292034;border-color:#624779}
+.pity{
+  height:10px;background:#30223d;
+  border-radius:10px;overflow:hidden;margin:12px 0;
+}
+.pity div{
+  height:100%;background:#c084fc;
+  transition:width .3s;
+}
+.unit-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+.unit{
+  background:#21192b;border:1px solid #483454;
+  border-radius:12px;padding:15px;
+  text-align:center;
+}
+.unit .symbol{font-size:42px;margin:8px}
+.unit h3{font-size:15px;margin-bottom:7px}
+.unit p{font-size:12px;color:#b9a8c7}
+.Normal{color:#aaa}
+.Rare{color:#54a9ff}
+.Epic{color:#c084fc}
+.Legendary{color:#ffcf55}
+.Mythic{color:#ff5e8b}
+.result{
+  background:#251832;border:1px solid #b56be0;
+  border-radius:12px;padding:15px;margin-top:15px;
+}
+.result h3{color:#e5b4ff;margin-bottom:10px}
+.result-item{
+  display:flex;justify-content:space-between;
+  padding:9px 0;border-bottom:1px solid #493355;
+  gap:8px;
+}
+.muted{color:#a99bb4;font-size:13px}
+.notice{color:#bda8cc;font-size:13px;line-height:1.6}
+footer{
+  text-align:center;padding:25px;color:#766781;
+  font-size:12px;
+}
+@media(min-width:600px){
+  .unit-grid{grid-template-columns:repeat(3,1fr)}
+  .stats{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">✦ GACHA ARENA</div>
+  <div class="balance">◆ <span id="coins">1000</span></div>
+</header>
+
+<nav>
+  <button class="active" onclick="showPage('home',this)">HOME</button>
+  <button onclick="showPage('summon',this)">SUMMON</button>
+  <button onclick="showPage('inventory',this)">UNITS</button>
+  <button onclick="showPage('daily',this)">DAILY</button>
+</nav>
+
+<main>
+
+<section id="home" class="section active">
+  <div class="banner">
+    <h1>GACHA ARENA</h1>
+    <p>Summon your legends. Build your army.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><small>Currency</small><strong id="homeCoins">1000</strong></div>
+    <div class="stat"><small>Collected</small><strong id="collected">0</strong></div>
+    <div class="stat"><small>Total Pulls</small><strong id="pulls">0</strong></div>
+    <div class="stat"><small>Owned Units</small><strong id="owned">0</strong></div>
+  </div>
+
+  <div class="panel">
+    <h2>WELCOME PLAYER</h2>
+    <p class="notice">
+      Welcome to Gacha Arena! Summon powerful units,
+      collect rare characters and build your collection.
+    </p>
+    <div class="buttons">
+      <button class="game-btn" onclick="showPage('summon',document.querySelectorAll('nav button')[1])">SUMMON NOW</button>
+      <button class="game-btn secondary" onclick="showPage('inventory',document.querySelectorAll('nav button')[2])">MY UNITS</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>RARITY RATE</h2>
+    <p class="Normal">Normal — 55%</p>
+    <p class="Rare">Rare — 28%</p>
+    <p class="Epic">Epic — 12%</p>
+    <p class="Legendary">Legendary — 4%</p>
+    <p class="Mythic">Mythic — 1%</p>
+  </div>
+</section>
+
+<section id="summon" class="section">
+  <div class="banner">
+    <h1>SUMMON GATE</h1>
+    <p>Discover your next powerful unit!</p>
+  </div>
+
+  <div class="panel">
+    <div class="character-banner">
+      <div class="symbol">✦</div>
+      <h2>ANCIENT SUMMON</h2>
+      <p class="muted">A new legend awaits...</p>
+    </div>
+
+    <h2 style="margin-top:20px">PITY SYSTEM</h2>
+    <p class="notice">Guaranteed Legendary or higher after 30 pulls.</p>
+    <div class="pity"><div id="pityBar" style="width:0%"></div></div>
+    <p class="muted">Pity: <span id="pity">0</span>/30</p>
+
+    <div class="buttons">
+      <button class="game-btn" onclick="summon(1)">SUMMON x1<br>100 ◆</button>
+      <button class="game-btn" onclick="summon(10)">SUMMON x10<br>900 ◆</button>
+    </div>
+
+    <div id="results"></div>
+  </div>
+</section>
+
+<section id="inventory" class="section">
+  <div class="banner">
+    <h1>MY UNITS</h1>
+    <p>Your personal character collection.</p>
+  </div>
+  <div class="panel">
+    <h2>COLLECTION</h2>
+    <p class="muted" id="inventoryCount">0 units</p>
+    <div class="unit-grid" id="unitGrid"></div>
+  </div>
+</section>
+
+<section id="daily" class="section">
+  <div class="banner">
+    <h1>DAILY REWARD</h1>
+    <p>Come back every day for free currency.</p>
+  </div>
+  <div class="panel">
+    <h2>DAILY LOGIN BONUS</h2>
+    <p class="notice">Claim 250 ◆ every day.</p>
+    <br>
+    <button class="game-btn" id="dailyButton" onclick="claimDaily()">CLAIM REWARD</button>
+    <p id="dailyMessage" class="notice" style="margin-top:15px"></p>
+  </div>
+</section>
+
+</main>
+
+<footer>GACHA ARENA • VERSION 1.0</footer>
+
+<script>
+const units = [
+ {name:"Recruit",rarity:"Normal",icon:"⚔️"},
+ {name:"Guardian",rarity:"Normal",icon:"🛡️"},
+ {name:"Archer",rarity:"Normal",icon:"🏹"},
+ {name:"Knight",rarity:"Rare",icon:"🗡️"},
+ {name:"Mage",rarity:"Rare",icon:"🔮"},
+ {name:"Assassin",rarity:"Rare",icon:"🌑"},
+ {name:"Dragon Rider",rarity:"Epic",icon:"🐉"},
+ {name:"Shadow Lord",rarity:"Epic",icon:"👁️"},
+ {name:"Storm King",rarity:"Epic",icon:"⚡"},
+ {name:"Celestial",rarity:"Legendary",icon:"🌟"},
+ {name:"Void Emperor",rarity:"Legendary",icon:"🌌"},
+ {name:"Divine Titan",rarity:"Mythic",icon:"👑"}
+];
+
+let save;
+try{
+ save=JSON.parse(localStorage.getItem("gachaArenaSave"));
+}catch(e){}
+if(!save || typeof save!=="object" || Array.isArray(save)){
+ save=null;
+}
+let data=save || {
+ coins:1000,
+ inventory:{},
+ pulls:0,
+ pity:0,
+ daily:""
+};
+
+function saveGame(){
+ localStorage.setItem("gachaArenaSave",JSON.stringify(data));
+ updateUI();
+}
+
+function showPage(page,button){
+ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+ document.getElementById(page).classList.add("active");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ if(page==="inventory")renderInventory();
+ updateUI();
+}
+
+function updateUI(){
+ document.getElementById("coins").textContent=data.coins;
+ document.getElementById("homeCoins").textContent=data.coins;
+ document.getElementById("pulls").textContent=data.pulls;
+ document.getElementById("pity").textContent=data.pity;
+ document.getElementById("pityBar").style.width=(data.pity/30*100)+"%";
+
+ let count=Object.values(data.inventory).reduce((a,b)=>a+b,0);
+ document.getElementById("owned").textContent=count;
+ document.getElementById("collected").textContent=Object.keys(data.inventory).length;
+
+ const claimed=data.daily===new Date().toDateString();
+ document.getElementById("dailyButton").disabled=claimed;
+ document.getElementById("dailyButton").textContent=claimed?"ALREADY CLAIMED":"CLAIM REWARD";
+}
+
+function rollUnit(){
+ const rates=[
+  {rarity:"Normal",weight:55},
+  {rarity:"Rare",weight:28},
+  {rarity:"Epic",weight:12},
+  {rarity:"Legendary",weight:4},
+  {rarity:"Mythic",weight:1}
+ ];
+
+ let rarity;
+ if(data.pity>=29){
+   rarity=Math.random()*100<96?"Legendary":"Mythic";
+ }else{
+   let roll=Math.random()*100;
+   let total=0;
+   rarity="Normal";
+   for(const r of rates){
+     total+=r.weight;
+     if(roll<total){rarity=r.rarity;break;}
+   }
+ }
+
+ const pool=units.filter(u=>u.rarity===rarity);
+ const unit=pool[Math.floor(Math.random()*pool.length)];
+
+ data.pulls++;
+ if(rarity==="Legendary"||rarity==="Mythic")data.pity=0;
+ else data.pity++;
+
+ data.inventory[unit.name]=(data.inventory[unit.name]||0)+1;
+ return unit;
+}
+
+function summon(amount){
+ const cost=amount===10?900:100;
+ if(data.coins<cost){
+   alert("Not enough currency!");
+   return;
+ }
+
+ data.coins-=cost;
+ const results=[];
+ for(let i=0;i<amount;i++)results.push(rollUnit());
+ saveGame();
+
+ document.getElementById("results").innerHTML=
+  '<div class="result"><h3>✦ SUMMON RESULTS</h3>'+
+  results.map(u=>
+   '<div class="result-item">'+
+   '<span>'+u.icon+' '+u.name+'</span>'+
+   '<strong class="'+u.rarity+'">'+u.rarity+'</strong>'+
+   '</div>'
+  ).join("")+
+  '</div>';
+}
+
+function renderInventory(){
+ const grid=document.getElementById("unitGrid");
+ grid.innerHTML="";
+ const owned=units.filter(u=>data.inventory[u.name]>0);
+
+ document.getElementById("inventoryCount").textContent=
+  owned.length+" different units";
+
+ if(owned.length===0){
+  grid.innerHTML='<p class="muted">No units yet. Visit Summon!</p>';
+  return;
+ }
+
+ owned.forEach(u=>{
+  const card=document.createElement("div");
+  card.className="unit";
+
+  const symbol=document.createElement("div");
+  symbol.className="symbol";
+  symbol.textContent=u.icon;
+
+  const name=document.createElement("h3");
+  name.textContent=u.name;
+
+  const rarity=document.createElement("p");
+  rarity.className=u.rarity;
+  rarity.textContent=u.rarity;
+
+  const quantity=document.createElement("p");
+  quantity.textContent="Owned: "+data.inventory[u.name];
+
+  card.append(symbol,name,rarity,quantity);
+  grid.appendChild(card);
+ });
+}
+
+function claimDaily(){
+ const today=new Date().toDateString();
+ if(data.daily===today)return;
+ data.coins+=250;
+ data.daily=today;
+ saveGame();
+ document.getElementById("dailyMessage").textContent=
+ "Success! You received 250 currency!";
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
